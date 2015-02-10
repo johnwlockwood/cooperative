@@ -26,27 +26,27 @@ def accumulation_handler(stopped_generator, spigot):
     return spigot.drain_contents()
 
 
-def accumulate(a_generator_func):
+def accumulate(a_generator):
     """
     Start a Deferred whose callBack arg is a deque of the accumulation
-    of the values yielded from a_generator_func.
+    of the values yielded from a_generator.
 
-    :param a_generator_func: A function which returns a generator.
+    :param a_generator: An iterator which yields some not None values.
     :return: A Deferred to which the next callback will be called with
      the yielded contents of the generator function.
     """
 
     spigot = Bucket(lambda x: x)
-    items = stream_tap((spigot,), a_generator_func())
+    items = stream_tap((spigot,), a_generator)
     d = cooperate(items).whenDone()
     d.addCallback(accumulation_handler, spigot)
     return d
 
 
-def batch_accumulate(max_batch_size, a_generator_func):
+def batch_accumulate(max_batch_size, a_generator):
     """
     Start a Deferred whose callBack arg is a deque of the accumulation
-    of the values yielded from a_generator_func which is iterated over
+    of the values yielded from a_generator which is iterated over
     in batches the size of max_batch_size.
 
     It should be more efficient to iterate over the generator in
@@ -54,13 +54,13 @@ def batch_accumulate(max_batch_size, a_generator_func):
 
     :param max_batch_size: The number of iterations of the generator
      to consume at a time.
-    :param a_generator_func: A function which returns a generator.
+    :param a_generator: An iterator which yields some not None values.
     :return: A Deferred to which the next callback will be called with
      the yielded contents of the generator function.
     """
     from twisted.internet.task import cooperate
     spigot = Bucket(lambda x: x)
-    items = stream_tap((spigot,), a_generator_func())
+    items = stream_tap((spigot,), a_generator)
 
     d = cooperate(i_batch(max_batch_size, items)).whenDone()
     d.addCallback(accumulation_handler, spigot)

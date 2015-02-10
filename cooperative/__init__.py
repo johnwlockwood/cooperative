@@ -15,7 +15,7 @@ from karld.tap import stream_tap
 from karld.iter_utils import i_batch
 
 
-def cooperative_accumulation_handler(stopped_generator, spigot):
+def accumulation_handler(stopped_generator, spigot):
     """
     Drain the contents of the bucket from the spigot.
 
@@ -26,7 +26,7 @@ def cooperative_accumulation_handler(stopped_generator, spigot):
     return spigot.drain_contents()
 
 
-def cooperative_accumulate(a_generator_func):
+def accumulate(a_generator_func):
     """
     Start a Deferred whose callBack arg is a deque of the accumulation
     of the values yielded from a_generator_func.
@@ -39,11 +39,11 @@ def cooperative_accumulate(a_generator_func):
     spigot = Bucket(lambda x: x)
     items = stream_tap((spigot,), a_generator_func())
     d = cooperate(items).whenDone()
-    d.addCallback(cooperative_accumulation_handler, spigot)
+    d.addCallback(accumulation_handler, spigot)
     return d
 
 
-def cooperative_accumulate_batched(max_batch_size, a_generator_func):
+def batch_accumulate(max_batch_size, a_generator_func):
     """
     Start a Deferred whose callBack arg is a deque of the accumulation
     of the values yielded from a_generator_func which is iterated over
@@ -63,5 +63,5 @@ def cooperative_accumulate_batched(max_batch_size, a_generator_func):
     items = stream_tap((spigot,), a_generator_func())
 
     d = cooperate(i_batch(max_batch_size, items)).whenDone()
-    d.addCallback(cooperative_accumulation_handler, spigot)
+    d.addCallback(accumulation_handler, spigot)
     return d

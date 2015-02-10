@@ -10,15 +10,15 @@ from twisted.trial import unittest
 
 from karld.tap import Bucket
 
-from cooperative import cooperative_accumulation_handler
-from cooperative import cooperative_accumulate
-from cooperative import cooperative_accumulate_batched
+from cooperative import accumulation_handler
+from cooperative import accumulate
+from cooperative import batch_accumulate
 
 
 class TestHandler(unittest.TestCase):
-    def test_cooperative_accumulation_handler(self):
+    def test_accumulation_handler(self):
         """
-        Ensure the return value of cooperative_accumulation_handler
+        Ensure the return value of accumulation_handler
         is the contents of a Bucket instance with it's contents
         drained.
 
@@ -28,7 +28,7 @@ class TestHandler(unittest.TestCase):
         spigot(1)
         spigot(2)
 
-        result = cooperative_accumulation_handler(None, spigot)
+        result = accumulation_handler(None, spigot)
         self.assertEqual(result, deque([u"1", u"2"]))
         self.assertEqual(spigot.contents(), deque([]))
 
@@ -44,7 +44,6 @@ def i_get_tenth_11(value):
     yield value[11]
 
 
-
 @inlineCallbacks
 def run_some_with_error(value):
     """
@@ -55,10 +54,10 @@ def run_some_with_error(value):
     :return:
     """
     #  first deferred
-    result = yield cooperative_accumulate(partial(i_get_tenth_11, value))
+    result = yield accumulate(partial(i_get_tenth_11, value))
 
     try:
-        result2 = yield cooperative_accumulate(partial(i_get_tenth_11, result))
+        result2 = yield accumulate(partial(i_get_tenth_11, result))
         defer.returnValue(result2)
     except IndexError, e:
         log.err(e)
@@ -76,24 +75,24 @@ def run_some_without_error(value):
     :return:
     """
     #  first deferred
-    result = yield cooperative_accumulate(partial(i_get_tenth_11, list(range(110, 150))))
+    result = yield accumulate(partial(i_get_tenth_11, list(range(110, 150))))
 
     log.msg("accumulated {}".format(result))
-    result = yield cooperative_accumulate(partial(i_get_tenth_11, value))
+    result = yield accumulate(partial(i_get_tenth_11, value))
     defer.returnValue(result)
 
 
 class TestAccumulate(unittest.TestCase):
     @inlineCallbacks
-    def test_cooperative_accumulate(self):
+    def test_accumulate(self):
         """
         Ensure that within an inline callback function,
-        a cooperative_accumulate wrapped generator
+        a accumulate wrapped generator
         yields the result of the output of the generator.
 
         :return:
         """
-        result = yield cooperative_accumulate(partial(i_get_tenth_11, list(range(110, 150))))
+        result = yield accumulate(partial(i_get_tenth_11, list(range(110, 150))))
         self.assertEqual(result, deque([120, 121]))
 
 
@@ -101,7 +100,7 @@ class TestAccumulate(unittest.TestCase):
     def test_failure(self):
         """
         Ensure that within an inline callback function,
-        a cooperative_accumulate based function
+        a accumulate based function
         yields the result if it's cooperative generator.
 
         Since and_the_winner_is is designed to always
@@ -139,7 +138,7 @@ class TestAccumulate(unittest.TestCase):
         """
         d1 = run_some_without_error(list(range(15)))
         d2 = run_some_without_error(list(range(15, 100)))
-        d3 = cooperative_accumulate(partial(i_get_tenth_11, list(range(4, 50))))
+        d3 = accumulate(partial(i_get_tenth_11, list(range(4, 50))))
         result = yield defer.gatherResults([d1, d2, d3])
 
         self.assertEqual(result, [deque([10, 11]),
@@ -172,10 +171,10 @@ class TestAccumulate(unittest.TestCase):
                 yield item
 
         result = yield defer.gatherResults([
-            cooperative_accumulate(partial(watcher, list(range(0, 15)))),
-            cooperative_accumulate(partial(watcher, list(range(15, 100)))),
-            cooperative_accumulate(partial(watcher, list(range(98, 200)))),
-            cooperative_accumulate(partial(watcher, list(range(145, 189))))
+            accumulate(partial(watcher, list(range(0, 15)))),
+            accumulate(partial(watcher, list(range(15, 100)))),
+            accumulate(partial(watcher, list(range(98, 200)))),
+            accumulate(partial(watcher, list(range(145, 189))))
         ])
 
         final_result = list(chain.from_iterable(result))
@@ -235,11 +234,11 @@ class TestAccumulate(unittest.TestCase):
                 yield item
 
         result = yield defer.gatherResults([
-            cooperative_accumulate(partial(watcher, list(range(0, 15)))),
-            cooperative_accumulate(partial(watcher, list(range(15, 100)))),
-            cooperative_accumulate(partial(deux_watcher,
+            accumulate(partial(watcher, list(range(0, 15)))),
+            accumulate(partial(watcher, list(range(15, 100)))),
+            accumulate(partial(deux_watcher,
                                            list(range(1098, 10200)))),
-            cooperative_accumulate(partial(watcher, list(range(145, 189))))
+            accumulate(partial(watcher, list(range(145, 189))))
         ])
 
         final_result = list(chain.from_iterable(result))
@@ -267,7 +266,7 @@ class TestAccumulate(unittest.TestCase):
         Ensure the longest one will continue to iterate after the
         others run out of iterations.
 
-        Ensure those called with cooperative_accumulate_batched will
+        Ensure those called with batch_accumulate will
         iterate over the generator in batches the size of max_size.
 
         :return:
@@ -304,11 +303,11 @@ class TestAccumulate(unittest.TestCase):
                 yield item
 
         result = yield defer.gatherResults([
-            cooperative_accumulate(partial(watcher, list(range(0, 15)))),
-            cooperative_accumulate(partial(watcher, list(range(15, 100)))),
-            cooperative_accumulate_batched(3, partial(deux_watcher,
+            accumulate(partial(watcher, list(range(0, 15)))),
+            accumulate(partial(watcher, list(range(15, 100)))),
+            batch_accumulate(3, partial(deux_watcher,
                                            list(range(1098, 10200)))),
-            cooperative_accumulate(partial(watcher, list(range(145, 189))))
+            accumulate(partial(watcher, list(range(145, 189))))
         ])
 
         final_result = list(chain.from_iterable(result))

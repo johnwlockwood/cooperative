@@ -1,3 +1,4 @@
+import uuid
 import os
 import sys
 
@@ -36,7 +37,7 @@ def get_version():
 
 
 def get_requirements(filename):
-    reqs = parse_requirements(filename)
+    reqs = parse_requirements(filename, session=uuid.uuid1())
 
     return [str(r.req) for r in reqs]
 
@@ -68,7 +69,7 @@ setup_args = dict(
     packages=packages,
     install_requires=get_install_requires(),
     tests_require=get_test_requires(),
-    long_description=read('README.rst'),
+    long_description=read('README.md'),
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',

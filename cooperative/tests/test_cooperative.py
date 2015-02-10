@@ -1,6 +1,5 @@
 # _*_ coding: utf-8 _*_
 from collections import deque
-from functools import partial
 from itertools import chain
 
 from twisted.internet import defer
@@ -54,10 +53,10 @@ def run_some_with_error(value):
     :return:
     """
     #  first deferred
-    result = yield accumulate(partial(i_get_tenth_11, value))
+    result = yield accumulate(i_get_tenth_11(value))
 
     try:
-        result2 = yield accumulate(partial(i_get_tenth_11, result))
+        result2 = yield accumulate(i_get_tenth_11(result))
         defer.returnValue(result2)
     except IndexError, e:
         log.err(e)
@@ -75,10 +74,10 @@ def run_some_without_error(value):
     :return:
     """
     #  first deferred
-    result = yield accumulate(partial(i_get_tenth_11, list(range(110, 150))))
+    result = yield accumulate(i_get_tenth_11(range(110, 150)))
 
     log.msg("accumulated {}".format(result))
-    result = yield accumulate(partial(i_get_tenth_11, value))
+    result = yield accumulate(i_get_tenth_11(value))
     defer.returnValue(result)
 
 
@@ -92,7 +91,7 @@ class TestAccumulate(unittest.TestCase):
 
         :return:
         """
-        result = yield accumulate(partial(i_get_tenth_11, list(range(110, 150))))
+        result = yield accumulate(i_get_tenth_11(range(110, 150)))
         self.assertEqual(result, deque([120, 121]))
 
 
@@ -108,7 +107,7 @@ class TestAccumulate(unittest.TestCase):
 
         :return:
         """
-        result = yield run_some_with_error(list(range(15)))
+        result = yield run_some_with_error(range(15))
         self.assertEqual(result, "Couldn't get second result, "
                                  "but the first result is deque([10, 11])")
 
@@ -123,8 +122,8 @@ class TestAccumulate(unittest.TestCase):
 
         :return:
         """
-        d1 = run_some_without_error(list(range(15)))
-        d2 = run_some_without_error(list(range(15, 100)))
+        d1 = run_some_without_error(range(15))
+        d2 = run_some_without_error(range(15, 100))
         result = yield defer.gatherResults([d1, d2])
 
         self.assertEqual(result, [deque([10, 11]), deque([25, 26])])
@@ -136,9 +135,9 @@ class TestAccumulate(unittest.TestCase):
 
         :return:
         """
-        d1 = run_some_without_error(list(range(15)))
-        d2 = run_some_without_error(list(range(15, 100)))
-        d3 = accumulate(partial(i_get_tenth_11, list(range(4, 50))))
+        d1 = run_some_without_error(range(15))
+        d2 = run_some_without_error(range(15, 100))
+        d3 = accumulate(i_get_tenth_11(range(4, 50)))
         result = yield defer.gatherResults([d1, d2, d3])
 
         self.assertEqual(result, [deque([10, 11]),
@@ -171,10 +170,10 @@ class TestAccumulate(unittest.TestCase):
                 yield item
 
         result = yield defer.gatherResults([
-            accumulate(partial(watcher, list(range(0, 15)))),
-            accumulate(partial(watcher, list(range(15, 100)))),
-            accumulate(partial(watcher, list(range(98, 200)))),
-            accumulate(partial(watcher, list(range(145, 189))))
+            accumulate(watcher(range(0, 15))),
+            accumulate(watcher(range(15, 100))),
+            accumulate(watcher(range(98, 200))),
+            accumulate(watcher(range(145, 189)))
         ])
 
         final_result = list(chain.from_iterable(result))
@@ -234,11 +233,10 @@ class TestAccumulate(unittest.TestCase):
                 yield item
 
         result = yield defer.gatherResults([
-            accumulate(partial(watcher, list(range(0, 15)))),
-            accumulate(partial(watcher, list(range(15, 100)))),
-            accumulate(partial(deux_watcher,
-                                           list(range(1098, 10200)))),
-            accumulate(partial(watcher, list(range(145, 189))))
+            accumulate(watcher(range(0, 15))),
+            accumulate(watcher(range(15, 100))),
+            accumulate(deux_watcher(range(1098, 10200))),
+            accumulate(watcher(range(145, 189)))
         ])
 
         final_result = list(chain.from_iterable(result))
@@ -303,11 +301,10 @@ class TestAccumulate(unittest.TestCase):
                 yield item
 
         result = yield defer.gatherResults([
-            accumulate(partial(watcher, list(range(0, 15)))),
-            accumulate(partial(watcher, list(range(15, 100)))),
-            batch_accumulate(3, partial(deux_watcher,
-                                           list(range(1098, 10200)))),
-            accumulate(partial(watcher, list(range(145, 189))))
+            accumulate(watcher(range(0, 15))),
+            accumulate(watcher(range(15, 100))),
+            batch_accumulate(3, deux_watcher(range(1098, 10200))),
+            accumulate(watcher(range(145, 189)))
         ])
 
         final_result = list(chain.from_iterable(result))

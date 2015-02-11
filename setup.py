@@ -69,7 +69,7 @@ setup_args = dict(
     packages=packages,
     install_requires=get_install_requires(),
     tests_require=get_test_requires(),
-    long_description=read('README.md'),
+    long_description=read('README.rst'),
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',

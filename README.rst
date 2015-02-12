@@ -4,11 +4,11 @@ Cooperative
 Write non-blocking computationally expensive code to go along with non-blocking io, without
 having to think about everything in callbacks.
 
-`batch_accumulate` will iterate over a generator in batches, yielding to other iterators
+``batch_accumulate`` will iterate over a generator in batches, yielding to other iterators
 passed into `twisted.internet.task.cooperate`
 
 Example
----------
+---------::
 
     #!/usr/bin/env python
     # _*_ coding: utf-8 _*_

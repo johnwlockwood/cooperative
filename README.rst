@@ -8,7 +8,9 @@ having to think about everything in callbacks.
 passed into `twisted.internet.task.cooperate`
 
 Example
----------::
+---------
+
+::
 
     #!/usr/bin/env python
     # _*_ coding: utf-8 _*_

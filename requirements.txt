@@ -1,2 +1,3 @@
-karld==0.2.9
+iter_karld_tools==0.9.0
+stream_tap==0.9.1
 twisted==15.0.0

@@ -2,6 +2,8 @@
 # _*_ coding: utf-8 _*_
 from operator import add
 
+import add_package_path
+
 import sys
 from twisted.internet import defer
 from twisted.internet.task import react

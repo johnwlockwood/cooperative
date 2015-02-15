@@ -1,4 +1,7 @@
 .idea
 cover
-docs
+docs/_build
+cooperativec
 _trial_temp
+.coverage
+*.egg-info

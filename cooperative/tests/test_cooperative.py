@@ -7,7 +7,7 @@ from twisted.internet.defer import inlineCallbacks
 from twisted.python import log
 from twisted.trial import unittest
 
-from karld.tap import Bucket
+from stream_tap import Bucket
 
 from cooperative import accumulation_handler
 from cooperative import accumulate

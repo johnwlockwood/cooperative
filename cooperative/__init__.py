@@ -1,7 +1,6 @@
 # _*_ coding: utf-8 _*_
 # -*- test-case-name: cooperative.tests.test_cooperative -*-
 
-import sys
 from cooperative import _meta
 
 __version__ = _meta.version
@@ -10,9 +9,9 @@ __version_info__ = _meta.version_info
 
 from twisted.internet.task import cooperate
 
-from karld.tap import Bucket
-from karld.tap import stream_tap
-from karld.iter_utils import i_batch
+from stream_tap import Bucket
+from stream_tap import stream_tap
+from iter_karld_tools import i_batch
 
 
 def accumulation_handler(stopped_generator, spigot):

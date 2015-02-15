@@ -1,0 +1,7 @@
+sphinx==1.2.3
+nose
+rednose==0.3
+mock
+coverage
+nose-exclude
+pathlib

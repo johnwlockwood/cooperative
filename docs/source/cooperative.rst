@@ -4,7 +4,7 @@ cooperative Package
 :mod:`cooperative` Package
 -----------------------------
 
-.. automodule:: cooperative.__init__
+.. automodule:: cooperative
     :members:
     :undoc-members:
     :show-inheritance:

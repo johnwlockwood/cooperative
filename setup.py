@@ -37,7 +37,10 @@ def get_version():
 
 
 def get_requirements(filename):
-    reqs = parse_requirements(filename, session=uuid.uuid1())
+    try:
+        reqs = list(parse_requirements(filename))
+    except TypeError:
+        reqs = list(parse_requirements(filename, session=uuid.uuid1()))
 
     return [str(r.req) for r in reqs]
 

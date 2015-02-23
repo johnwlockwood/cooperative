@@ -4,6 +4,9 @@ from itertools import chain
 
 from twisted.internet import defer
 from twisted.internet.defer import inlineCallbacks
+from twisted.internet.task import Clock
+from twisted.internet.task import Cooperator
+from twisted.internet.task import LoopingCall
 from twisted.python import log
 from twisted.trial import unittest
 
@@ -79,6 +82,72 @@ def run_some_without_error(value):
     log.msg("accumulated {}".format(result))
     result = yield accumulate(i_get_tenth_11(value))
     defer.returnValue(result)
+
+
+class Doer(object):
+    count = 0
+
+    def __init__(self, own_reactor, own_cooperator):
+        self.reactor = own_reactor
+        self.cooperator = own_cooperator
+        self.previous = deque([], maxlen=50)
+        self.count = 0
+
+    @inlineCallbacks
+    def run(self):
+        """
+        Cooperatively iterator over two iterators consecutively and the
+        result of the final one is returned.
+
+        :return:
+        """
+        #  first deferred
+        self.count += 1
+        result = yield accumulate(i_get_tenth_11(range(110, 150)), self.cooperator)
+
+        log.msg("accumulated {} at {}".format(result, self.count))
+        result = yield batch_accumulate(2, range(self.count), self.cooperator)
+        log.msg("batch accumulated {} at {}".format(result, self.count))
+        defer.returnValue(result)
+
+
+class TestOwnCooperator(unittest.TestCase):
+    def setUp(self):
+        """
+        Create a reactor and Cooperator that can be controlled.
+
+        Instantiate a Doer with the reactor and cooperator.
+
+        Create a Looping Call and set it's clock to the reactor.
+
+        :return:
+        """
+        self.reactor = Clock()
+        self.cooperator = Cooperator()
+        self.doer = Doer(self.reactor, self.cooperator)
+        self.loop = LoopingCall(self.doer.run)
+        self.loop.clock = self.reactor
+
+    def test_control_coop(self):
+        """
+        Ensure control of own cooperator.
+
+        :return:
+        """
+        def tick():
+            self.reactor.advance(1)
+            self.cooperator._tick()
+
+        self.loop.start(1.0, now=True)
+        tick()
+        self.assertEqual(1, self.doer.count)
+        tick()
+        self.assertEqual(2, self.doer.count)
+        tick()
+        self.assertEqual(3, self.doer.count)
+
+    def tearDown(self):
+        self.loop.stop()
 
 
 class TestAccumulate(unittest.TestCase):

@@ -25,7 +25,7 @@ def accumulation_handler(stopped_generator, spigot):
     return spigot.drain_contents()
 
 
-def accumulate(a_generator):
+def accumulate(a_generator, cooperator=None):
     """
     Start a Deferred whose callBack arg is a deque of the accumulation
     of the values yielded from a_generator.
@@ -34,15 +34,19 @@ def accumulate(a_generator):
     :return: A Deferred to which the next callback will be called with
      the yielded contents of the generator function.
     """
+    if cooperator:
+        own_cooperate = cooperator.cooperate
+    else:
+        own_cooperate = cooperate
 
     spigot = Bucket(lambda x: x)
     items = stream_tap((spigot,), a_generator)
-    d = cooperate(items).whenDone()
+    d = own_cooperate(items).whenDone()
     d.addCallback(accumulation_handler, spigot)
     return d
 
 
-def batch_accumulate(max_batch_size, a_generator):
+def batch_accumulate(max_batch_size, a_generator, cooperator=None):
     """
     Start a Deferred whose callBack arg is a deque of the accumulation
     of the values yielded from a_generator which is iterated over
@@ -57,10 +61,14 @@ def batch_accumulate(max_batch_size, a_generator):
     :return: A Deferred to which the next callback will be called with
      the yielded contents of the generator function.
     """
-    from twisted.internet.task import cooperate
+    if cooperator:
+        own_cooperate = cooperator.cooperate
+    else:
+        own_cooperate = cooperate
+
     spigot = Bucket(lambda x: x)
     items = stream_tap((spigot,), a_generator)
 
-    d = cooperate(i_batch(max_batch_size, items)).whenDone()
+    d = own_cooperate(i_batch(max_batch_size, items)).whenDone()
     d.addCallback(accumulation_handler, spigot)
     return d

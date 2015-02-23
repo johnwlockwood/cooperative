@@ -38,10 +38,14 @@ def get_version():
 
 def get_requirements(filename):
     try:
-        reqs = list(parse_requirements(filename))
-    except TypeError:
-        reqs = list(parse_requirements(filename, session=uuid.uuid1()))
-
+        from pip.download import PipSession
+ 
+        session = PipSession()
+    except ImportError:
+        session = None
+ 
+    reqs = parse_requirements(filename, session=session)
+ 
     return [str(r.req) for r in reqs]
 
 

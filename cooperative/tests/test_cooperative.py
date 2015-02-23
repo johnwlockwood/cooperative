@@ -8,8 +8,6 @@ from twisted.internet.task import Clock
 from twisted.internet.task import Cooperator
 from twisted.internet.task import LoopingCall
 from twisted.python import log
-from twisted.test.proto_helpers import MemoryReactor
-from twisted.test.proto_helpers import MemoryReactorClock
 from twisted.trial import unittest
 
 from stream_tap import Bucket

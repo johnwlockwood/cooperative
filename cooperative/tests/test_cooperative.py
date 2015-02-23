@@ -68,7 +68,7 @@ def run_some_with_error(value):
 
 
 @inlineCallbacks
-def run_some_without_error(value, cooperator):
+def run_some_without_error(value):
     """
     Cooperatively iterator over two iterators consecutively and the
     result of the final one is returned.
@@ -80,7 +80,7 @@ def run_some_without_error(value, cooperator):
     result = yield accumulate(i_get_tenth_11(range(110, 150)))
 
     log.msg("accumulated {}".format(result))
-    result = yield accumulate(i_get_tenth_11(value), cooperator)
+    result = yield accumulate(i_get_tenth_11(value))
     defer.returnValue(result)
 
 

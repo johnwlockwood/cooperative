@@ -1,4 +1,3 @@
-import uuid
 import os
 import sys
 
@@ -11,6 +10,11 @@ except ImportError:
     packages = ['cooperative']
 
 from pip.req import parse_requirements
+try:
+    from pip.download import PipSession
+except ImportError as e:
+    raise ImportError("cannot import name PipSession, "
+                      "Please update pip to >= 1.5")
 
 if sys.argv[-1] == 'publish':
     os.system('python setup.py sdist upload')
@@ -36,11 +40,27 @@ def get_version():
     return mod.version
 
 
+def get_requirement_items(filename):
+    """
+    Get install requirements from a file.
+
+    :param filename: A file path to a requirements file.
+    :return: A list of requirement items.
+    :rtype: A `list` of :class:`pip.req.InstallRequirement`
+    """
+    with PipSession() as session:
+        return list(parse_requirements(filename, session=session))
+
+
 def get_requirements(filename):
-    try:
-        reqs = list(parse_requirements(filename))
-    except TypeError:
-        reqs = list(parse_requirements(filename, session=uuid.uuid1()))
+    """
+    Get requirements from a file and
+    convert to a list of strings.
+
+    :param filename:
+    :return:
+    """
+    reqs = get_requirement_items(filename)
 
     return [str(r.req) for r in reqs]
 

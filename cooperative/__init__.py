@@ -1,5 +1,6 @@
 # _*_ coding: utf-8 _*_
 # -*- test-case-name: cooperative.tests.test_cooperative -*-
+from collections import deque
 
 from cooperative import _meta
 
@@ -9,9 +10,39 @@ __version_info__ = _meta.version_info
 
 from twisted.internet.task import cooperate
 
-from stream_tap import Bucket
 from stream_tap import stream_tap
 from iter_karld_tools import i_batch
+
+
+class ValueBucket(object):
+    """
+    Produces a callable that accumulates all non-None values
+    it is called with in order.
+
+    The contents may be accessed or collected and drained,
+    to make room for new content.
+    """
+    def __init__(self):
+        self._contents = deque()
+
+    def __call__(self, value):
+        if value is not None:
+            self._contents.append(value)
+
+    def contents(self):
+        """
+        :returns: contents
+        """
+        return self._contents
+
+    def drain_contents(self):
+        """
+        Starts a new collection to accumulate future contents
+        and returns all of existing contents.
+        """
+        existing_contents = self._contents
+        self._contents = deque()
+        return existing_contents
 
 
 def accumulation_handler(stopped_generator, spigot):
@@ -39,7 +70,7 @@ def accumulate(a_generator, cooperator=None):
     else:
         own_cooperate = cooperate
 
-    spigot = Bucket(lambda x: x)
+    spigot = ValueBucket()
     items = stream_tap((spigot,), a_generator)
     d = own_cooperate(items).whenDone()
     d.addCallback(accumulation_handler, spigot)
@@ -66,7 +97,7 @@ def batch_accumulate(max_batch_size, a_generator, cooperator=None):
     else:
         own_cooperate = cooperate
 
-    spigot = Bucket(lambda x: x)
+    spigot = ValueBucket()
     items = stream_tap((spigot,), a_generator)
 
     d = own_cooperate(i_batch(max_batch_size, items)).whenDone()

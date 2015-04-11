@@ -10,7 +10,6 @@ __version_info__ = _meta.version_info
 
 from twisted.internet.task import cooperate
 
-from stream_tap import Bucket
 from stream_tap import stream_tap
 from iter_karld_tools import i_batch
 

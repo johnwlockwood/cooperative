@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# stream_tap documentation build configuration file, created by
+# cooperative documentation build configuration file, created by
 # sphinx-quickstart on Sun Mar 16 21:31:15 2014.
 #
 # This file is execfile()d with the current directory set to its containing dir.
@@ -59,7 +59,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'stream_tap'
+project = u'cooperative'
 copyright = u'2015, John W Lockwood IV'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -246,8 +246,8 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
     ('index', 'cooperative', u'Cooperative Documentation',
-     u'John W Lockwood IV', 'stream_tap', "Write computationally intensive "
-                                          "non-blocking code without callbacks",
+     u'John W Lockwood IV', 'cooperative', "Write concurrent computationally intensive "
+                                           "non-blocking code without callbacks",
      'Miscellaneous'),
 ]
 

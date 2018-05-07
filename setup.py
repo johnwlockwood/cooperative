@@ -9,13 +9,6 @@ except ImportError:
     from distutils.core import setup
     packages = ['cooperative']
 
-from pip.req import parse_requirements
-try:
-    from pip.download import PipSession
-except ImportError as e:
-    raise ImportError("cannot import name PipSession, "
-                      "Please update pip to >= 1.5")
-
 if sys.argv[-1] == 'publish':
     os.system('python setup.py sdist upload')
     sys.exit()
@@ -40,18 +33,6 @@ def get_version():
     return mod.version
 
 
-def get_requirement_items(filename):
-    """
-    Get install requirements from a file.
-
-    :param filename: A file path to a requirements file.
-    :return: A list of requirement items.
-    :rtype: A `list` of :class:`pip.req.InstallRequirement`
-    """
-    with PipSession() as session:
-        return list(parse_requirements(filename, session=session))
-
-
 def get_requirements(filename):
     """
     Get requirements from a file and
@@ -60,9 +41,8 @@ def get_requirements(filename):
     :param filename:
     :return:
     """
-    reqs = get_requirement_items(filename)
-
-    return [str(r.req) for r in reqs]
+    with open(filename) as f:
+        return list(f)
 
 
 def get_install_requires():

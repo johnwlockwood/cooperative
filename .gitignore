@@ -5,3 +5,6 @@ cooperativec
 _trial_temp
 .coverage
 *.egg-info
+.vscode/tags
+build/
+dist/

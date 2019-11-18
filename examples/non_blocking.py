@@ -16,7 +16,7 @@ def expensive(number):
     log.msg("starting {}".format(number))
     for value in range(100000):
         if 25000 == value:
-            log.msg("1/4 for {}".format(number))
+            log.msg("tttttttt1/4 for {}".format(number))
         if 50000 == value:
             log.msg("1/2 for {}".format(number))
         if 75000 == value:
